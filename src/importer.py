@@ -1,0 +1,161 @@
+import os
+import csv
+from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
+
+def importar_tudo():
+    # Pastas e Caminhos
+    os.makedirs("data/bin", exist_ok=True)
+    f_oc = "data/bin/ocorrencias.dat"
+    f_ae = "data/bin/aeronaves.dat"
+    f_tp = "data/bin/tipos.dat"
+    f_rc = "data/bin/recomendacoes.dat"
+
+    # Abre todos em modo w+b (limpa e abre binario)
+    arq_oc = open(f_oc, "w+b")
+    arq_ae = open(f_ae, "w+b")
+    arq_tp = open(f_tp, "w+b")
+    arq_rc = open(f_rc, "w+b")
+    
+    indice_id_offset = {} 
+
+    # --- PASSO 1: OCORRÊNCIAS ---
+    print("--- 1. Importando Ocorrências ---")
+    try:
+        with open("data/raw/ocorrencia.csv", "r", encoding='latin-1') as f:
+            leitor = csv.DictReader(f, delimiter=';')
+            for row in leitor:
+                try:
+                    cod = int(row['codigo_ocorrencia'])
+                    
+                    oc = Ocorrencia(
+                        codigo=cod,
+                        uf=row['ocorrencia_uf'],
+                        cidade=row['ocorrencia_cidade'],
+                        classificacao=row['ocorrencia_classificacao'],
+                        status=row['investigacao_status'],
+                        total_aeros=row['total_aeronaves_envolvidas']
+                    )
+                    
+                    offset = arq_oc.tell()
+                    arq_oc.write(oc.to_bytes())
+                    indice_id_offset[cod] = offset
+                except ValueError: continue
+    except FileNotFoundError: print("Arquivo ocorrencia.csv não encontrado.")
+
+    # --- PASSO 2: AERONAVES ---
+    print("--- 2. Importando Aeronaves ---")
+    try:
+        with open("data/raw/aeronave.csv", "r", encoding='latin-1') as f:
+            leitor = csv.DictReader(f, delimiter=';')
+            for row in leitor:
+                try:
+                    # CENIPA usa codigo_ocorrencia2 na tabela aeronave
+                    cod_pai = int(row.get('codigo_ocorrencia2', row.get('codigo_ocorrencia')))
+                    
+                    if cod_pai in indice_id_offset:
+                        off_pai = indice_id_offset[cod_pai]
+                        
+                        # Ler Pai
+                        arq_oc.seek(off_pai)
+                        pai = Ocorrencia.from_bytes(arq_oc.read(Ocorrencia.TAMANHO))
+                        
+                        # Criar Filho (aponta para onde o pai apontava)
+                        filho = Aeronave(
+                            modelo=row['aeronave_modelo'],
+                            origem=row['aeronave_voo_origem'],
+                            destino=row['aeronave_voo_destino'],
+                            fatalidades=row['aeronave_fatalidades_total'],
+                            prox_aeronave=pai.pont_aeronave
+                        )
+                        
+                        # Gravar Filho
+                        off_filho = arq_ae.tell()
+                        arq_ae.write(filho.to_bytes())
+                        
+                        # Atualizar Pai
+                        pai.pont_aeronave = off_filho
+                        arq_oc.seek(off_pai)
+                        arq_oc.write(pai.to_bytes())
+                        
+                        # Resetar cursor do filho
+                        arq_ae.seek(0, os.SEEK_END)
+                except ValueError: continue
+    except FileNotFoundError: print("aeronave.csv falta.")
+
+    # --- PASSO 3: TIPOS ---
+    print("--- 3. Importando Tipos ---")
+    try:
+        with open("data/raw/ocorrencia_tipo.csv", "r", encoding='latin-1') as f:
+            leitor = csv.DictReader(f, delimiter=';')
+            for row in leitor:
+                try:
+                    # CENIPA usa codigo_ocorrencia1
+                    cod_pai = int(row.get('codigo_ocorrencia1', row.get('codigo_ocorrencia')))
+                    
+                    if cod_pai in indice_id_offset:
+                        off_pai = indice_id_offset[cod_pai]
+                        
+                        arq_oc.seek(off_pai)
+                        pai = Ocorrencia.from_bytes(arq_oc.read(Ocorrencia.TAMANHO))
+                        
+                        filho = OcorrenciaTipo(
+                            tipo=row['ocorrencia_tipo'],
+                            categoria=row['ocorrencia_tipo_categoria'],
+                            taxonomia=row['taxonomia_tipo_icao'],
+                            prox_tipo=pai.pont_tipo
+                        )
+                        
+                        off_filho = arq_tp.tell()
+                        arq_tp.write(filho.to_bytes())
+                        
+                        pai.pont_tipo = off_filho
+                        arq_oc.seek(off_pai)
+                        arq_oc.write(pai.to_bytes())
+                        
+                        arq_tp.seek(0, os.SEEK_END)
+                except ValueError: continue
+    except FileNotFoundError: print("ocorrencia_tipo.csv falta.")
+
+    # --- PASSO 4: RECOMENDAÇÕES ---
+    print("--- 4. Importando Recomendações ---")
+    try:
+        with open("data/raw/recomendacao.csv", "r", encoding='latin-1') as f:
+            leitor = csv.DictReader(f, delimiter=';')
+            for row in leitor:
+                try:
+                    # CENIPA usa codigo_ocorrencia4
+                    cod_pai = int(row.get('codigo_ocorrencia4', row.get('codigo_ocorrencia')))
+                    
+                    if cod_pai in indice_id_offset:
+                        off_pai = indice_id_offset[cod_pai]
+                        
+                        arq_oc.seek(off_pai)
+                        pai = Ocorrencia.from_bytes(arq_oc.read(Ocorrencia.TAMANHO))
+                        
+                        filho = Recomendacao(
+                            numero=row['recomendacao_numero'],
+                            status=row['recomendacao_status'],
+                            conteudo=row['recomendacao_conteudo'],
+                            prox_rec=pai.pont_recomendacao
+                        )
+                        
+                        off_filho = arq_rc.tell()
+                        arq_rc.write(filho.to_bytes())
+                        
+                        pai.pont_recomendacao = off_filho
+                        arq_oc.seek(off_pai)
+                        arq_oc.write(pai.to_bytes())
+                        
+                        arq_rc.seek(0, os.SEEK_END)
+                except ValueError: continue
+    except FileNotFoundError: print("recomendacao.csv falta (opcional).")
+
+    # Fechar tudo
+    arq_oc.close()
+    arq_ae.close()
+    arq_tp.close()
+    arq_rc.close()
+    print("Importação Completa! 4 Arquivos Gerados.")
+
+if __name__ == "__main__":
+    importar_tudo()
