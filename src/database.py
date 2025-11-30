@@ -1,5 +1,6 @@
 import os
 from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
+from bplustree import BPlusTree # <--- IMPORTAR
 
 class Database:
     def __init__(self, path_oc, path_ae, path_tipo, path_rec):
@@ -7,16 +8,27 @@ class Database:
         self.file_ae = path_ae
         self.file_tipo = path_tipo
         self.file_rec = path_rec
+        
+        # Carrega o índice B+ ao iniciar
+        # Conforme a spec: árvores podem ser carregadas integralmente em memória 
+        self.index = BPlusTree.load("data/bin/index_primary.idx")
+
+    def buscar_ocorrencia_por_id(self, codigo_id):
+        """Busca O(log n) usando a Árvore B+"""
+        offset = self.index.search(codigo_id)
+        if offset is None:
+            return None
+        return self.ler_ocorrencia(offset)
 
     def ler_ocorrencia(self, offset):
-        """Lê uma ocorrência dado o offset"""
+        """Lê uma ocorrência dado o offset (acesso direto)"""
         if offset < 0: return None
         with open(self.file_oc, 'rb') as f:
             f.seek(offset)
             dados = f.read(Ocorrencia.TAMANHO)
             if not dados: return None
             return Ocorrencia.from_bytes(dados)
-
+    
     def ler_aeronaves(self, ocorrencia):
         """Percorre a lista de aeronaves"""
         lista = []

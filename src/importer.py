@@ -1,6 +1,7 @@
 import os
 import csv
 from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
+from bplustree import BPlusTree  # <--- IMPORTAR A CLASSE
 
 def importar_tudo():
     # Pastas e Caminhos
@@ -9,6 +10,9 @@ def importar_tudo():
     f_ae = "data/bin/aeronaves.dat"
     f_tp = "data/bin/tipos.dat"
     f_rc = "data/bin/recomendacoes.dat"
+    
+    # Inicializa a Árvore B+
+    index_tree = BPlusTree(order=5) # <--- INSTANCIAR
 
     # Abre todos em modo w+b (limpa e abre binario)
     arq_oc = open(f_oc, "w+b")
@@ -16,7 +20,9 @@ def importar_tudo():
     arq_tp = open(f_tp, "w+b")
     arq_rc = open(f_rc, "w+b")
     
-    indice_id_offset = {} 
+    # Mantemos este dicionário APENAS para resolver as chaves estrangeiras 
+    # (Aeronaves/Tipos) rapidamente durante a importação, sem precisar fazer I/O na árvore.
+    indice_id_offset_temp = {} 
 
     # --- PASSO 1: OCORRÊNCIAS ---
     print("--- 1. Importando Ocorrências ---")
@@ -38,7 +44,11 @@ def importar_tudo():
                     
                     offset = arq_oc.tell()
                     arq_oc.write(oc.to_bytes())
-                    indice_id_offset[cod] = offset
+                    
+                    # Atualiza índice em memória (temp) e Árvore B+
+                    indice_id_offset_temp[cod] = offset
+                    index_tree.insert(cod, offset) # <--- INSERIR NA ÁRVORE
+                    
                 except ValueError: continue
     except FileNotFoundError: print("Arquivo ocorrencia.csv não encontrado.")
 
@@ -52,8 +62,8 @@ def importar_tudo():
                     # CENIPA usa codigo_ocorrencia2 na tabela aeronave
                     cod_pai = int(row.get('codigo_ocorrencia2', row.get('codigo_ocorrencia')))
                     
-                    if cod_pai in indice_id_offset:
-                        off_pai = indice_id_offset[cod_pai]
+                    if cod_pai in indice_id_offset_temp:
+                        off_pai = indice_id_offset_temp[cod_pai]
                         
                         # Ler Pai
                         arq_oc.seek(off_pai)
@@ -92,8 +102,8 @@ def importar_tudo():
                     # CENIPA usa codigo_ocorrencia1
                     cod_pai = int(row.get('codigo_ocorrencia1', row.get('codigo_ocorrencia')))
                     
-                    if cod_pai in indice_id_offset:
-                        off_pai = indice_id_offset[cod_pai]
+                    if cod_pai in indice_id_offset_temp:
+                        off_pai = indice_id_offset_temp[cod_pai]
                         
                         arq_oc.seek(off_pai)
                         pai = Ocorrencia.from_bytes(arq_oc.read(Ocorrencia.TAMANHO))
@@ -126,8 +136,8 @@ def importar_tudo():
                     # CENIPA usa codigo_ocorrencia4
                     cod_pai = int(row.get('codigo_ocorrencia4', row.get('codigo_ocorrencia')))
                     
-                    if cod_pai in indice_id_offset:
-                        off_pai = indice_id_offset[cod_pai]
+                    if cod_pai in indice_id_offset_temp:
+                        off_pai = indice_id_offset_temp[cod_pai]
                         
                         arq_oc.seek(off_pai)
                         pai = Ocorrencia.from_bytes(arq_oc.read(Ocorrencia.TAMANHO))
@@ -150,12 +160,15 @@ def importar_tudo():
                 except ValueError: continue
     except FileNotFoundError: print("recomendacao.csv falta (opcional).")
 
+    # Salvar a Árvore B+ no final
+    index_tree.save() # <--- SALVAR NO DISCO
+
     # Fechar tudo
     arq_oc.close()
     arq_ae.close()
     arq_tp.close()
     arq_rc.close()
-    print("Importação Completa! 4 Arquivos Gerados.")
+    print("Importação Completa! Arquivos Binários e Índice B+ Gerados.")
 
 if __name__ == "__main__":
     importar_tudo()
