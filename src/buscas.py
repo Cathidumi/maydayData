@@ -27,7 +27,7 @@ def busca_na_arvore(codigo_teste=87125):
     except Exception as e:
         print(f"Erro ao buscar ocorrência: {e}")
 
-def busca_na_trie(modelo_parcial="CESSNA"):
+def busca_na_trie_modelo(modelo_parcial="CESSNA"):
     try:
         db = Database(
             path_oc="data/bin/ocorrencias.dat",

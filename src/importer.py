@@ -180,7 +180,7 @@ def importar_tudo():
     arq_ae.close()
     arq_tp.close()
     arq_rc.close()
-    print("Importação Completa! Arquivos Binários e Índice B+ Gerados.")
+    print("Importação Completa! Arquivos Binários, Índice B+ Gerados e Índices Trie Gerados.")
 
 if __name__ == "__main__":
     importar_tudo()

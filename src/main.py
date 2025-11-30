@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from importer import importar_tudo
 
 from teste_leitura import testar_simples
-from buscas import busca_na_arvore, busca_na_trie
+from buscas import busca_na_arvore, busca_na_trie_modelo
 
 def main():
     try:
@@ -47,7 +47,7 @@ def app():
         elif escolha == '2':
             try:
                 modelo = input('Digite o modelo da aeronave: ')
-                busca_na_trie(modelo)
+                busca_na_trie_modelo(modelo)
             except Exception as e:
                 print(f"Erro ao buscar por modelo na Trie: {e}")
         elif escolha == '3':
