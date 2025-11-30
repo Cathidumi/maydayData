@@ -87,8 +87,6 @@ class BPlusTree:
 
     # --- NOVOS MÉTODOS SAVE/LOAD COM STRUCT (Sem Pickle) ---
 
-    # ... (Mantenha a parte inicial da classe BPlusTree e os métodos insert/search iguais)
-
     # --- MÉTODOS SAVE/LOAD CORRIGIDOS (Com alinhamento padrão '<') ---
 
     def save(self):

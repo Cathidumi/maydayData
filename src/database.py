@@ -1,6 +1,7 @@
 import os
 from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
-from bplustree import BPlusTree # <--- IMPORTAR
+from bplustree import BPlusTree # Importa a classe BPlusTree como índice primário
+from indexes import Trie   # Importa a Trie como índice secundário para busca por modelo de aeronave
 
 class Database:
     def __init__(self, path_oc, path_ae, path_tipo, path_rec):
@@ -12,6 +13,7 @@ class Database:
         # Carrega o índice B+ ao iniciar
         # Conforme a spec: árvores podem ser carregadas integralmente em memória 
         self.index = BPlusTree.load("data/bin/index_primary.idx")
+        self.index_modelo = Trie.load("data/bin/index_modelo.idx") # Carrega a Trie para índice secundário de modelo
 
     def buscar_ocorrencia_por_id(self, codigo_id):
         """Busca O(log n) usando a Árvore B+"""
@@ -19,6 +21,25 @@ class Database:
         if offset is None:
             return None
         return self.ler_ocorrencia(offset)
+    
+    def buscar_por_modelo(self, modelo_parcial):
+        """
+        Retorna lista de objetos Ocorrencia que possuem aeronaves 
+        cujo modelo começa com 'modelo_parcial'.
+        """
+        # 1. Buscar IDs no Trie
+        ids = self.index_modelo.search_prefix(modelo_parcial)
+        
+        # 2. Usar o índice primário (B+) para pegar as ocorrências completas
+        ocorrencias = []
+        for cod in ids:
+            # O índice primário retorna o OFFSET no arquivo de ocorrências
+            offset = self.index.search(cod)
+            if offset is not None:
+                oc = self.ler_ocorrencia(offset)
+                if oc:
+                    ocorrencias.append(oc)
+        return ocorrencias    
 
     def ler_ocorrencia(self, offset):
         """Lê uma ocorrência dado o offset (acesso direto)"""
@@ -76,3 +97,5 @@ class Database:
                 lista.append(obj)
                 prox = obj.prox_rec
         return lista
+    
+

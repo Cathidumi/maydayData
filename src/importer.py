@@ -1,7 +1,8 @@
 import os
 import csv
 from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
-from bplustree import BPlusTree  # <--- IMPORTAR A CLASSE
+from bplustree import BPlusTree # importa a implementação da Árvore B+
+from indexes import Trie # importa a implementação da Trie
 
 def importar_tudo():
     # Pastas e Caminhos
@@ -12,7 +13,10 @@ def importar_tudo():
     f_rc = "data/bin/recomendacoes.dat"
     
     # Inicializa a Árvore B+
-    index_tree = BPlusTree(order=5) # <--- INSTANCIAR
+    index_tree = BPlusTree(order=5)
+
+    # Inicializa a Trie para busca por modelo (Índice Secundário)
+    index_modelo_trie = Trie()
 
     # Abre todos em modo w+b (limpa e abre binario)
     arq_oc = open(f_oc, "w+b")
@@ -64,6 +68,7 @@ def importar_tudo():
                     
                     if cod_pai in indice_id_offset_temp:
                         off_pai = indice_id_offset_temp[cod_pai]
+                        modelo_aeronave = row['aeronave_modelo'] # <--- PEGANDO O MODELO
                         
                         # Ler Pai
                         arq_oc.seek(off_pai)
@@ -86,6 +91,10 @@ def importar_tudo():
                         pai.pont_aeronave = off_filho
                         arq_oc.seek(off_pai)
                         arq_oc.write(pai.to_bytes())
+
+                        # Inserir no Índice Secundário (Trie) # <--- AQUI!
+                        # A chave é o modelo, o valor é o código da ocorrência.
+                        index_modelo_trie.insert(modelo_aeronave, cod_pai)
                         
                         # Resetar cursor do filho
                         arq_ae.seek(0, os.SEEK_END)
@@ -162,6 +171,9 @@ def importar_tudo():
 
     # Salvar a Árvore B+ no final
     index_tree.save() # <--- SALVAR NO DISCO
+    
+    # Salvar a Trie no final
+    index_modelo_trie.save()
 
     # Fechar tudo
     arq_oc.close()
