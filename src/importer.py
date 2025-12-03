@@ -14,9 +14,10 @@ def importar_tudo():
     
     # Inicializa a Árvore B+
     index_tree = BPlusTree(order=5)
-
     # Inicializa a Trie para busca por modelo (Índice Secundário)
-    index_modelo_trie = Trie()
+    index_modelo_trie = Trie("data/bin/index_modelo.idx")
+    #Index Secundário (Trie) para cidades
+    index_cidade = Trie("data/bin/index_cidade.idx")
 
     # Abre todos em modo w+b (limpa e abre binario)
     arq_oc = open(f_oc, "w+b")
@@ -36,6 +37,7 @@ def importar_tudo():
             for row in leitor:
                 try:
                     cod = int(row['codigo_ocorrencia'])
+                    cidade = row['ocorrencia_cidade'] # <--- PEGANDO A CIDADE
                     
                     oc = Ocorrencia(
                         codigo=cod,
@@ -52,6 +54,8 @@ def importar_tudo():
                     # Atualiza índice em memória (temp) e Árvore B+
                     indice_id_offset_temp[cod] = offset
                     index_tree.insert(cod, offset) # <--- INSERIR NA ÁRVORE
+                    # Inserir na Trie de cidades (Índice Secundário)
+                    index_cidade.insert(cidade, cod)
                     
                 except ValueError: continue
     except FileNotFoundError: print("Arquivo ocorrencia.csv não encontrado.")
@@ -174,6 +178,8 @@ def importar_tudo():
     
     # Salvar a Trie no final
     index_modelo_trie.save()
+
+    index_cidade.save() # <--- SALVAR TRIE DE CIDADES
 
     # Fechar tudo
     arq_oc.close()

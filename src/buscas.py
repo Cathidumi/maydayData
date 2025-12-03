@@ -46,13 +46,21 @@ def busca_na_trie_modelo(modelo_parcial="CESSNA"):
     except Exception as e:
         print(f"Erro ao buscar por modelo na Trie: {e}")
 
+def busca_trie_cidade(cidade_parcial="SAO PAULO"):
+    try:
+        db = Database(
+            path_oc="data/bin/ocorrencias.dat",
+            path_ae="data/bin/aeronaves.dat",
+            path_tipo="data/bin/tipos.dat",
+            path_rec="data/bin/recomendacoes.dat"
+        )
 
-"""     while True:
-        entrada = input("Digite um código de ocorrência para buscar (ou 'sair' para encerrar): ")
-        if entrada.lower() == 'sair':
-            break
-        try:
-            codigo = int(entrada)
-            busca_na_arvore(codigo)
-        except ValueError:
-            print("Por favor, insira um número válido ou 'sair'.") """
+        ocorrencias = db.buscar_por_cidade(cidade_parcial)
+        if ocorrencias:
+            print(f"Ocorrências encontradas para cidade começando com '{cidade_parcial}':")
+            for oc in ocorrencias:
+                print(f"  Código: {oc.codigo}, Local: {oc.cidade.strip()}/{oc.uf}, Classificação: {oc.classificacao.strip()}")
+        else:
+            print(f"Nenhuma ocorrência encontrada para cidade começando com '{cidade_parcial}'.")
+    except Exception as e:
+        print(f"Erro ao buscar por cidade na Trie: {e}")

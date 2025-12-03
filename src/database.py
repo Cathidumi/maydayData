@@ -14,6 +14,7 @@ class Database:
         # Conforme a spec: árvores podem ser carregadas integralmente em memória 
         self.index = BPlusTree.load("data/bin/index_primary.idx")
         self.index_modelo = Trie.load("data/bin/index_modelo.idx") # Carrega a Trie para índice secundário de modelo
+        self.index_cidade = Trie.load("data/bin/index_cidade.idx") # Carrega Trie de cidades
 
     def buscar_ocorrencia_por_id(self, codigo_id):
         """Busca O(log n) usando a Árvore B+"""
@@ -23,23 +24,26 @@ class Database:
         return self.ler_ocorrencia(offset)
     
     def buscar_por_modelo(self, modelo_parcial):
-        """
-        Retorna lista de objetos Ocorrencia que possuem aeronaves 
-        cujo modelo começa com 'modelo_parcial'.
-        """
-        # 1. Buscar IDs no Trie
+        """Busca Ocorrências por prefixo do Modelo da Aeronave"""
         ids = self.index_modelo.search_prefix(modelo_parcial)
-        
-        # 2. Usar o índice primário (B+) para pegar as ocorrências completas
+        return self._recuperar_ocorrencias_por_ids(ids)
+
+    def buscar_por_cidade(self, cidade_parcial):
+        """Busca Ocorrências por prefixo do nome da Cidade"""
+        ids = self.index_cidade.search_prefix(cidade_parcial)
+        return self._recuperar_ocorrencias_por_ids(ids)
+
+    def _recuperar_ocorrencias_por_ids(self, lista_ids):
+        """Método auxiliar para evitar repetição de código"""
         ocorrencias = []
-        for cod in ids:
-            # O índice primário retorna o OFFSET no arquivo de ocorrências
+        # Usar set para remover duplicatas caso o mesmo ID apareça 2x (ex: 2 aeronaves do mesmo modelo no mesmo acidente)
+        for cod in set(lista_ids): 
             offset = self.index.search(cod)
             if offset is not None:
                 oc = self.ler_ocorrencia(offset)
                 if oc:
                     ocorrencias.append(oc)
-        return ocorrencias    
+        return ocorrencias
 
     def ler_ocorrencia(self, offset):
         """Lê uma ocorrência dado o offset (acesso direto)"""
