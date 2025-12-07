@@ -18,6 +18,8 @@ def importar_tudo():
     index_modelo_trie = Trie("data/bin/index_modelo.idx")
     #Index Secundário (Trie) para cidades
     index_cidade = Trie("data/bin/index_cidade.idx")
+    #Index Secundário (Trie) para ocorrencia_categoria_tipo
+    index_categoria = Trie("data/bin/index_categoria.idx")
 
     # Abre todos em modo w+b (limpa e abre binario)
     arq_oc = open(f_oc, "w+b")
@@ -117,6 +119,7 @@ def importar_tudo():
                     
                     if cod_pai in indice_id_offset_temp:
                         off_pai = indice_id_offset_temp[cod_pai]
+                        categoria_tipo = row['ocorrencia_tipo_categoria'] # <--- PEGANDO A CATEGORIA DA OCORRÊNCIA
                         
                         arq_oc.seek(off_pai)
                         pai = Ocorrencia.from_bytes(arq_oc.read(Ocorrencia.TAMANHO))
@@ -134,6 +137,10 @@ def importar_tudo():
                         pai.pont_tipo = off_filho
                         arq_oc.seek(off_pai)
                         arq_oc.write(pai.to_bytes())
+
+                        # Inserir no Índice Secundário (Trie)
+                        # A chave é o modelo, o valor é o código da ocorrência.
+                        index_categoria.insert(categoria_tipo, cod_pai)
                         
                         arq_tp.seek(0, os.SEEK_END)
                 except ValueError: continue
@@ -180,6 +187,7 @@ def importar_tudo():
     index_modelo_trie.save()
 
     index_cidade.save() # <--- SALVAR TRIE DE CIDADES
+    index_categoria.save() # <--- SALVAR TRIE DE CATEGORIA
 
     # Fechar tudo
     arq_oc.close()

@@ -15,6 +15,7 @@ class Database:
         self.index = BPlusTree.load("data/bin/index_primary.idx")
         self.index_modelo = Trie.load("data/bin/index_modelo.idx") # Carrega a Trie para índice secundário de modelo
         self.index_cidade = Trie.load("data/bin/index_cidade.idx") # Carrega Trie de cidades
+        self.index_categoria = Trie.load("data/bin/index_categoria.idx") # Carrega Trie de categoria/tipo
 
     def buscar_ocorrencia_por_id(self, codigo_id):
         """Busca O(log n) usando a Árvore B+"""
@@ -31,6 +32,11 @@ class Database:
     def buscar_por_cidade(self, cidade_parcial):
         """Busca Ocorrências por prefixo do nome da Cidade"""
         ids = self.index_cidade.search_prefix(cidade_parcial)
+        return self._recuperar_ocorrencias_por_ids(ids)
+    
+    def buscar_por_categoria_tipo(self, categoria_parcial):
+        """Busca Ocorrências por prefixo da Categoria/Tipo da Ocorrência"""
+        ids = self.index_categoria.search_prefix(categoria_parcial)
         return self._recuperar_ocorrencias_por_ids(ids)
 
     def _recuperar_ocorrencias_por_ids(self, lista_ids):
