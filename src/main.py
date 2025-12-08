@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from importer import importar_tudo
 
 from teste_leitura import testar_simples
-from buscas import busca_na_arvore, busca_na_trie_modelo, busca_trie_cidade, busca_trie_categoria, busca_bst_uf, busca_bst_status_investigacao
+from buscas import busca_na_arvore, busca_na_trie_modelo, busca_trie_cidade, busca_trie_categoria, busca_bst_uf, busca_bst_status_investigacao, busca_bst_fatalidades
 from database import Database
 
 def main():
@@ -53,6 +53,7 @@ def app():
         print('4. Busca por categoria de Ocorrência')
         print('5. Busca por UF')
         print('6. Busca por Status da Investigação')
+        print('7. Busca por Fatalidades')
         print('sair. Sair do programa')
         escolha = input('Escolha uma opção: ')
         if escolha == '1':
@@ -91,6 +92,12 @@ def app():
                 busca_bst_status_investigacao(db, status)
             except Exception as e:
                 print(f"Erro ao buscar por Status da Investigação na BST: {e}")
+        elif escolha == '7':
+            try:
+                qtd = int(input('Digite a quantidade de fatalidades: '))
+                busca_bst_fatalidades(db, qtd)
+            except Exception as e:
+                print(f"Erro ao buscar por Fatalidades: {e}")
         elif escolha.lower() == 'sair':
             print('Saindo do programa.')
             break

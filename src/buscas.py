@@ -77,3 +77,15 @@ def busca_bst_status_investigacao(db, status="FINALIZADA"):
             print(f"Nenhuma ocorrência encontrada para status de investigação '{status}'.")
     except Exception as e:
         print(f"Erro ao buscar por status de investigação na BST: {e}")
+
+def busca_bst_fatalidades(db, qtd):
+    try:
+        ocorrencias = db.buscar_por_fatalidades(qtd)
+        if ocorrencias:
+            print(f"Ocorrências encontradas com {qtd} fatalidades:")
+            for oc in ocorrencias:
+                print(f"  Código: {oc.codigo} | Local: {oc.cidade.strip()}/{oc.uf} | Classificação: {oc.classificacao.strip()}")
+        else:
+            print(f"Nenhuma ocorrência encontrada com exatos {qtd} fatalidades.")
+    except Exception as e:
+        print(f"Erro na busca por fatalidades: {e}")

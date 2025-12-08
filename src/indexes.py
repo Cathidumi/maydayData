@@ -377,3 +377,113 @@ class IndiceInvertidoBST:
                     instance.adicionar(key, _id)
                     
         return instance
+    
+class IndiceNumericoBST:
+    def __init__(self, filename):
+        self.root = None
+        self.filename = filename
+
+    def adicionar(self, chave_int, _id):
+        try:
+            key = int(chave_int)
+        except ValueError:
+            return # Ignora se não for número
+
+        if self.root is None:
+            self.root = No(key)
+            self.root.ids.append(_id)
+        else:
+            self._inserir_recursivo(self.root, key, _id)
+
+    def _inserir_recursivo(self, node, key, _id):
+        if key == node.key:
+            if _id not in node.ids:
+                node.ids.append(_id)
+        elif key < node.key:
+            if node.left is None:
+                node.left = No(key)
+                node.left.ids.append(_id)
+            else:
+                self._inserir_recursivo(node.left, key, _id)
+        else:
+            if node.right is None:
+                node.right = No(key)
+                node.right.ids.append(_id)
+            else:
+                self._inserir_recursivo(node.right, key, _id)
+
+    def buscar(self, numero):
+        try:
+            key = int(numero)
+        except ValueError: return []
+        return self._buscar_recursivo(self.root, key)
+
+    def _buscar_recursivo(self, node, key):
+        if node is None: return []
+        if key == node.key: return node.ids
+        elif key < node.key: return self._buscar_recursivo(node.left, key)
+        else: return self._buscar_recursivo(node.right, key)
+
+    def _in_order(self, node, lista):
+        if node:
+            self._in_order(node.left, lista)
+            lista.append(node)
+            self._in_order(node.right, lista)
+
+    def save(self):
+        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
+        nos_ordenados = []
+        self._in_order(self.root, nos_ordenados)
+        qtd_termos = len(nos_ordenados)
+        
+        with open(self.filename, 'wb') as f:
+            # HEADER: Apenas qtd_termos (4 bytes)
+            f.write(struct.pack('<i', qtd_termos))
+            
+            # FORMATO DA ENTRADA: Key(int) + Offset(int) + Qtd_IDs(int) = 12 bytes
+            entry_size = 12 
+            offset_atual = 4 + (qtd_termos * entry_size)
+            
+            # 1. Escrever Diretório
+            for node in nos_ordenados:
+                qtd_ids = len(node.ids)
+                # Grava: Chave(int), Offset, Qtd
+                f.write(struct.pack('<iii', node.key, offset_atual, qtd_ids))
+                offset_atual += (qtd_ids * 4)
+            
+            # 2. Escrever Listas de IDs
+            for node in nos_ordenados:
+                for _id in node.ids:
+                    f.write(struct.pack('<i', int(_id)))
+                    
+        print(f"Índice Numérico salvo em {self.filename} (Termos={qtd_termos})")
+
+    @staticmethod
+    def load(filename):
+        instance = IndiceNumericoBST(filename)
+        if not os.path.exists(filename):
+            print(f"Índice {filename} não encontrado.")
+            return instance
+
+        with open(filename, 'rb') as f:
+            data = f.read(4)
+            if not data: return instance
+            qtd_termos = struct.unpack('<i', data)[0]
+            
+            entry_size = 12 # 3 ints
+            dir_bytes = f.read(qtd_termos * entry_size)
+            
+            diretorio = []
+            for i in range(qtd_termos):
+                chunk = dir_bytes[i*entry_size : (i+1)*entry_size]
+                key, offset, qtd = struct.unpack('<iii', chunk)
+                diretorio.append((key, offset, qtd))
+            
+            for key, offset, qtd in diretorio:
+                f.seek(offset)
+                raw_ids = f.read(qtd * 4)
+                lista_ids = struct.unpack(f'<{qtd}i', raw_ids)
+                for _id in lista_ids:
+                    instance.adicionar(key, _id)
+                    
+        return instance

@@ -3,7 +3,7 @@ import csv
 from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
 from bplustree import BPlusTree # importa a implementação da Árvore B+
 from indexes import Trie # importa a implementação da Trie
-from indexes import IndiceInvertidoBST
+from indexes import IndiceInvertidoBST, IndiceNumericoBST
 
 def importar_tudo():
     # Pastas e Caminhos
@@ -27,6 +27,9 @@ def importar_tudo():
     index_uf = IndiceInvertidoBST("data/bin/index_uf.dat", key_size=2)
     # Inicializa BST para índice invertido para Fatalidades
     index_investigacao = IndiceInvertidoBST("data/bin/index_investigacao.dat", key_size=10)
+
+    # Inicializa BST Numérica para Fatalidades
+    index_fatalidades = IndiceNumericoBST("data/bin/index_fatalidades.dat")
 
     # Abre todos em modo w+b (limpa e abre binario)
     arq_oc = open(f_oc, "w+b")
@@ -86,7 +89,8 @@ def importar_tudo():
                     if cod_pai in indice_id_offset_temp:
                         off_pai = indice_id_offset_temp[cod_pai]
                         modelo_aeronave = row['aeronave_modelo'] # <--- PEGANDO O MODELO
-                        
+                        fatalidades = int(row['aeronave_fatalidades_total'] or 0) # <--- PEGANDO FATALIDADES
+
                         # Ler Pai
                         arq_oc.seek(off_pai)
                         pai = Ocorrencia.from_bytes(arq_oc.read(Ocorrencia.TAMANHO))
@@ -112,6 +116,9 @@ def importar_tudo():
                         # Inserir no Índice Secundário (Trie) # <--- AQUI!
                         # A chave é o modelo, o valor é o código da ocorrência.
                         index_modelo_trie.insert(modelo_aeronave, cod_pai)
+                        # Inserir no índice de fatalidades
+                        # Mapeia: Quantidade de Mortos -> Código da Ocorrência
+                        index_fatalidades.adicionar(fatalidades, cod_pai)
                         
                         # Resetar cursor do filho
                         arq_ae.seek(0, os.SEEK_END)
@@ -202,6 +209,7 @@ def importar_tudo():
     # Salvar as BSTs no final
     index_uf.save()  # Salvar BST de UF
     index_investigacao.save()  # Salvar BST de Status da Investigação
+    index_fatalidades.save() # Salvar BST numérica de Fatalidades
 
     # Fechar tudo
     arq_oc.close()

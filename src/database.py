@@ -2,7 +2,7 @@ import os
 from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
 from bplustree import BPlusTree # Importa a classe BPlusTree como índice primário
 from indexes import Trie   # Importa a Trie como índice secundário para busca por modelo de aeronave
-from indexes import IndiceInvertidoBST  # Importa a BST para índice invertido
+from indexes import IndiceInvertidoBST, IndiceNumericoBST  # Importa a BST para índice invertido e BST numérica
 
 class Database:
     def __init__(self, path_oc, path_ae, path_tipo, path_rec):
@@ -23,6 +23,7 @@ class Database:
         # BST de índice invertido
         self.index_uf = IndiceInvertidoBST.load("data/bin/index_uf.dat")
         self.index_investigacao = IndiceInvertidoBST.load("data/bin/index_investigacao.dat")
+        self.index_fatalidades = IndiceNumericoBST.load("data/bin/index_fatalidades.dat")
 
 
     def buscar_ocorrencia_por_id(self, codigo_id):
@@ -57,6 +58,11 @@ class Database:
         # Ex: status = 'FINALIZADA' ou 'ATIVA'
         """Busca Ocorrências por Status da Investigação usando o índice invertido (BST)"""
         ids = self.index_investigacao.buscar(status) 
+        return self._recuperar_ocorrencias_por_ids(ids)
+    
+    def buscar_por_fatalidades(self, qtd_fatalidades):
+        """Busca Ocorrências que tiveram EXATAMENTE X fatalidades"""
+        ids = self.index_fatalidades.buscar(qtd_fatalidades)
         return self._recuperar_ocorrencias_por_ids(ids)
 
     def _recuperar_ocorrencias_por_ids(self, lista_ids):
