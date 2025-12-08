@@ -3,18 +3,9 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from database import Database
-
 # BUSCA NA ÁRVORE B+
-def busca_na_arvore(codigo_teste=87125):
+def busca_na_arvore(db, codigo_teste=87125):
     try:
-        db = Database(
-            path_oc="data/bin/ocorrencias.dat",
-            path_ae="data/bin/aeronaves.dat",
-            path_tipo="data/bin/tipos.dat",
-            path_rec="data/bin/recomendacoes.dat"
-        )
-
         ocorrencia = db.buscar_ocorrencia_por_id(codigo_teste)
         if ocorrencia:
             print(f"Ocorrência encontrada: {ocorrencia}")
@@ -27,15 +18,8 @@ def busca_na_arvore(codigo_teste=87125):
     except Exception as e:
         print(f"Erro ao buscar ocorrência: {e}")
 
-def busca_na_trie_modelo(modelo_parcial="CESSNA"):
+def busca_na_trie_modelo(db, modelo_parcial="CESSNA"):
     try:
-        db = Database(
-            path_oc="data/bin/ocorrencias.dat",
-            path_ae="data/bin/aeronaves.dat",
-            path_tipo="data/bin/tipos.dat",
-            path_rec="data/bin/recomendacoes.dat"
-        )
-
         ocorrencias = db.buscar_por_modelo(modelo_parcial)
         if ocorrencias:
             print(f"Ocorrências encontradas para modelo começando com '{modelo_parcial}':")
@@ -46,15 +30,8 @@ def busca_na_trie_modelo(modelo_parcial="CESSNA"):
     except Exception as e:
         print(f"Erro ao buscar por modelo na Trie: {e}")
 
-def busca_trie_cidade(cidade_parcial="SAO PAULO"):
+def busca_trie_cidade(db, cidade_parcial="SAO PAULO"):
     try:
-        db = Database(
-            path_oc="data/bin/ocorrencias.dat",
-            path_ae="data/bin/aeronaves.dat",
-            path_tipo="data/bin/tipos.dat",
-            path_rec="data/bin/recomendacoes.dat"
-        )
-
         ocorrencias = db.buscar_por_cidade(cidade_parcial)
         if ocorrencias:
             print(f"Ocorrências encontradas para cidade começando com '{cidade_parcial}':")
@@ -65,15 +42,8 @@ def busca_trie_cidade(cidade_parcial="SAO PAULO"):
     except Exception as e:
         print(f"Erro ao buscar por cidade na Trie: {e}")
 
-def busca_trie_categoria(categoria_parcial="ACIDENTE"):
+def busca_trie_categoria(db, categoria_parcial="ACIDENTE"):
     try:
-        db = Database(
-            path_oc="data/bin/ocorrencias.dat",
-            path_ae="data/bin/aeronaves.dat",
-            path_tipo="data/bin/tipos.dat",
-            path_rec="data/bin/recomendacoes.dat"
-        )
-
         ocorrencias = db.buscar_por_categoria_tipo(categoria_parcial)
         if ocorrencias:
             print(f"Ocorrências encontradas para categoria começando com '{categoria_parcial}':")
@@ -84,15 +54,8 @@ def busca_trie_categoria(categoria_parcial="ACIDENTE"):
     except Exception as e:
         print(f"Erro ao buscar por categoria na Trie: {e}")
 
-def busca_bst_uf(uf="SP"):
+def busca_bst_uf(db, uf="SP"):
     try:
-        db = Database(
-            path_oc="data/bin/ocorrencias.dat",
-            path_ae="data/bin/aeronaves.dat",
-            path_tipo="data/bin/tipos.dat",
-            path_rec="data/bin/recomendacoes.dat"
-        )
-
         ocorrencias = db.buscar_por_uf(uf)
         if ocorrencias:
             print(f"Ocorrências encontradas para UF '{uf}':")
@@ -103,15 +66,8 @@ def busca_bst_uf(uf="SP"):
     except Exception as e:
         print(f"Erro ao buscar por UF na BST: {e}")
 
-def busca_bst_status_investigacao(status="FINALIZADA"):
+def busca_bst_status_investigacao(db, status="FINALIZADA"):
     try:
-        db = Database(
-            path_oc="data/bin/ocorrencias.dat",
-            path_ae="data/bin/aeronaves.dat",
-            path_tipo="data/bin/tipos.dat",
-            path_rec="data/bin/recomendacoes.dat"
-        )
-
         ocorrencias = db.buscar_por_status_investigacao(status)
         if ocorrencias:
             print(f"Ocorrências encontradas para status de investigação '{status}':")

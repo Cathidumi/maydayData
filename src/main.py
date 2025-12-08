@@ -7,6 +7,7 @@ from importer import importar_tudo
 
 from teste_leitura import testar_simples
 from buscas import busca_na_arvore, busca_na_trie_modelo, busca_trie_cidade, busca_trie_categoria, busca_bst_uf, busca_bst_status_investigacao
+from database import Database
 
 def main():
     try:
@@ -32,6 +33,18 @@ def main():
         return """
     
 def app():
+    try:
+        db = Database(
+            path_oc="data/bin/ocorrencias.dat",
+            path_ae="data/bin/aeronaves.dat",
+            path_tipo="data/bin/tipos.dat",
+            path_rec="data/bin/recomendacoes.dat"
+        )
+        print("Índices carregados com sucesso!")
+    except Exception as e:
+        print(f"Erro fatal ao carregar banco de dados: {e}")
+        return
+
     while True:
         print('\n--- Menu Principal ---')
         print('1. Busca por Código de Ocorrência')
@@ -45,37 +58,37 @@ def app():
         if escolha == '1':
             try:
                 codigo = int(input('Digite o código da ocorrência: '))
-                busca_na_arvore(codigo)
+                busca_na_arvore(db, codigo)
             except Exception as e:
                 print(f"Erro ao buscar na árvore B+: {e}")
         elif escolha == '2':
             try:
                 modelo = input('Digite o modelo da aeronave: ')
-                busca_na_trie_modelo(modelo)
+                busca_na_trie_modelo(db, modelo)
             except Exception as e:
                 print(f"Erro ao buscar por modelo na Trie: {e}")
         elif escolha == '3':
             try:
                 cidade = input('Digite a cidade da ocorrência: ')
-                busca_trie_cidade(cidade)
+                busca_trie_cidade(db, cidade)
             except Exception as e:
                 print(f"Erro ao buscar por cidade na Trie: {e}")
         elif escolha == '4':
             try:
                 categoria = input('Digite a categoria da ocorrência: ')
-                busca_trie_categoria(categoria)
+                busca_trie_categoria(db, categoria)
             except Exception as e:
                 print(f"Erro ao buscar por categoria/tipo na Trie: {e}")
         elif escolha == '5':
             try:
                 uf = input('Digite a UF da ocorrência (ex: SP): ')
-                busca_bst_uf(uf)
+                busca_bst_uf(db, uf)
             except Exception as e:
                 print(f"Erro ao buscar por UF na BST: {e}")
         elif escolha == '6':
             try:
                 status = input('Digite o Status da Investigação (ex: FINALIZADA, ATIVA): ')
-                busca_bst_status_investigacao(status)
+                busca_bst_status_investigacao(db, status)
             except Exception as e:
                 print(f"Erro ao buscar por Status da Investigação na BST: {e}")
         elif escolha.lower() == 'sair':
