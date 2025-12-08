@@ -236,5 +236,71 @@ def busca_bst_fatalidades(db, qtd):
     except Exception as e:
         print(f"Erro na busca por fatalidades: {e}")
 
+def busca_trie_categoria_paginada(db):
+    clear_terminal()
+    print("--- Busca por Categoria da Ocorrência ---")
+    termo = input('Digite a categoria ou prefixo: ').strip()
+    if not termo: return
+
+    print("Buscando...")
+    try:
+        resultados = db.buscar_por_categoria_tipo(termo)
+        exibir_resultados_paginados(resultados, f"Categoria '{termo}'")
+    except Exception as e:
+        print(f"Erro: {e}")
+        input()
+
+def busca_bst_uf_paginada(db):
+    clear_terminal()
+    print("--- Busca por UF (Estado) ---")
+    uf = input('Digite a Sigla da UF (ex: SP, RJ, RS): ').strip().upper()
+    
+    if len(uf) != 2:
+        print("Erro: A UF deve ter exatamente 2 letras.")
+        input("Enter para voltar...")
+        return
+
+    print("Buscando...")
+    try:
+        resultados = db.buscar_por_uf(uf)
+        exibir_resultados_paginados(resultados, f"UF '{uf}'")
+    except Exception as e:
+        print(f"Erro: {e}")
+        input()
+
+def busca_bst_status_paginada(db):
+    clear_terminal()
+    print("--- Busca por Status da Investigação ---")
+    print("Exemplos: FINALIZADA, ATIVA")
+    status = input('Digite o Status: ').strip().upper()
+    if not status: return
+
+    print("Buscando...")
+    try:
+        resultados = db.buscar_por_status_investigacao(status)
+        exibir_resultados_paginados(resultados, f"Status '{status}'")
+    except Exception as e:
+        print(f"Erro: {e}")
+        input()
+
+def busca_bst_fatalidades_paginada(db):
+    clear_terminal()
+    print("--- Busca por Quantidade de Fatalidades ---")
+    entrada = input('Digite o número exato de fatalidades: ').strip()
+    
+    if not entrada.isdigit():
+        print("Erro: Digite apenas números inteiros.")
+        input("Enter para voltar...")
+        return
+        
+    qtd = int(entrada)
+    print("Buscando...")
+    try:
+        resultados = db.buscar_por_fatalidades(qtd)
+        exibir_resultados_paginados(resultados, f"{qtd} Fatalidades")
+    except Exception as e:
+        print(f"Erro: {e}")
+        input()
+
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')

@@ -5,8 +5,8 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from importer import importar_tudo
 
-from teste_leitura import testar_simples
-from buscas import busca_na_arvore, busca_na_trie_modelo, busca_na_trie_modelo_paginada, busca_trie_cidade, busca_trie_cidade_paginada, busca_trie_categoria, busca_bst_uf, busca_bst_status_investigacao, busca_bst_fatalidades
+from buscas import busca_na_arvore, busca_na_trie_modelo, busca_trie_cidade, busca_trie_categoria, busca_bst_uf, busca_bst_status_investigacao, busca_bst_fatalidades
+from buscas import busca_na_arvore, busca_na_trie_modelo_paginada, busca_trie_cidade_paginada, busca_trie_categoria_paginada, busca_bst_uf_paginada, busca_bst_status_paginada, busca_bst_fatalidades_paginada
 from database import Database
 
 def main():
@@ -15,16 +15,8 @@ def main():
     except Exception as e:
         print(f"Erro crítico na importação: {e}")
         return
-
-    #-------------------------------
-    # APENAS PARA FINS DE TESTES
-    try:
-        testar_simples()
-    except Exception as e:
-        print(f"Erro ao ler os dados: {e}")
-        return
     
-def app():
+'''def app():
     try:
         db = Database(
             path_oc="data/bin/ocorrencias.dat",
@@ -94,7 +86,7 @@ def app():
             print('Saindo do programa.')
             break
         else:
-            print('Opção inválida. Tente novamente.')
+            print('Opção inválida. Tente novamente.')'''
 
 def app_main():
     clear_terminal()
@@ -124,6 +116,14 @@ def app_main():
             busca_na_trie_modelo_paginada(db)
         elif input_opcao == '3':
             busca_trie_cidade_paginada(db)
+        elif input_opcao == '4':
+            busca_trie_categoria_paginada(db)
+        elif input_opcao == '5':
+            busca_bst_uf_paginada(db)
+        elif input_opcao == '6':
+            busca_bst_status_paginada(db)
+        elif input_opcao == '7':
+            busca_bst_fatalidades_paginada(db)
 
         elif input_opcao == 'sair':
             print('Saindo do programa.')
@@ -156,11 +156,15 @@ def menu_principal():
     texto_inicial = 'MaydaData - Sistema de Pesquisa de Ocorrências Aéreas na Aviação Civil Brasileira'
     largura_console = os.get_terminal_size().columns # 158 na minha tela
     print(f'\n{'-'*largura_console}\n{texto_inicial.center(largura_console)}\n{"-"*largura_console}\n')
-    print(f'Menu principal')
-    print(f'1. Busca por Código de Ocorrência')
-    print(f'2. Busca por modelo de Aeronave')
-    print(f'3. Busca por cidade')
-    print(f'sair. Sair do programa')
+    print('Menu principal')
+    print('1. Busca por Código de Ocorrência')
+    print('2. Busca por modelo de Aeronave')
+    print('3. Busca por cidade')
+    print('4. Busca por categoria de Ocorrência')
+    print('5. Busca por UF')
+    print('6. Busca por Status da Investigação')
+    print('7. Busca por Fatalidades')
+    print('sair. Sair do programa')
 
 def voltar_ao_menu():
     input('\nPressione Enter para voltar ao menu principal...')
