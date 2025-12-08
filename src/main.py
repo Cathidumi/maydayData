@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from importer import importar_tudo
 
 from teste_leitura import testar_simples
-from buscas import busca_na_arvore, busca_na_trie_modelo, busca_trie_cidade, busca_trie_categoria, busca_bst_uf, busca_bst_status_investigacao, busca_bst_fatalidades
+from buscas import busca_na_arvore, busca_na_trie_modelo, busca_na_trie_modelo_paginada, busca_trie_cidade, busca_trie_categoria, busca_bst_uf, busca_bst_status_investigacao, busca_bst_fatalidades
 from database import Database
 
 def main():
@@ -115,10 +115,13 @@ def app_main():
     menu_principal()
 
     while True:
+        menu_principal()
         input_opcao = input('\nEscolha uma opção: ')
         if input_opcao == '1':
             app_busca_por_codigo(db)
             voltar_ao_menu()
+        elif input_opcao == '2':
+            busca_na_trie_modelo_paginada(db)
 
         elif input_opcao == 'sair':
             print('Saindo do programa.')
