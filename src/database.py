@@ -2,6 +2,7 @@ import os
 from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
 from bplustree import BPlusTree # Importa a classe BPlusTree como índice primário
 from indexes import Trie   # Importa a Trie como índice secundário para busca por modelo de aeronave
+from indexes import IndiceInvertidoBST  # Importa a BST para índice invertido
 
 class Database:
     def __init__(self, path_oc, path_ae, path_tipo, path_rec):
@@ -13,9 +14,13 @@ class Database:
         # Carrega o índice B+ ao iniciar
         # Conforme a spec: árvores podem ser carregadas integralmente em memória 
         self.index = BPlusTree.load("data/bin/index_primary.idx")
+        # Tries
         self.index_modelo = Trie.load("data/bin/index_modelo.idx") # Carrega a Trie para índice secundário de modelo
         self.index_cidade = Trie.load("data/bin/index_cidade.idx") # Carrega Trie de cidades
-        self.index_categoria = Trie.load("data/bin/index_categoria.idx") # Carrega Trie de categoria/tipo
+        self.index_categoria = Trie.load("data/bin/index_categoria.idx") # Carrega Trie de categoria
+        # BST de índice invertido
+        self.index_uf = IndiceInvertidoBST.load("data/bin/index_uf.dat")
+
 
     def buscar_ocorrencia_por_id(self, codigo_id):
         """Busca O(log n) usando a Árvore B+"""
@@ -37,6 +42,12 @@ class Database:
     def buscar_por_categoria_tipo(self, categoria_parcial):
         """Busca Ocorrências por prefixo da Categoria/Tipo da Ocorrência"""
         ids = self.index_categoria.search_prefix(categoria_parcial)
+        return self._recuperar_ocorrencias_por_ids(ids)
+    
+    def buscar_por_uf(self, uf):
+        # Ex: uf = 'SP'
+        """Busca Ocorrências por UF usando o índice invertido (BST)"""
+        ids = self.index_uf.buscar(uf) 
         return self._recuperar_ocorrencias_por_ids(ids)
 
     def _recuperar_ocorrencias_por_ids(self, lista_ids):

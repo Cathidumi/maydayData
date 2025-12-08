@@ -3,6 +3,7 @@ import csv
 from model import Ocorrencia, Aeronave, OcorrenciaTipo, Recomendacao
 from bplustree import BPlusTree # importa a implementação da Árvore B+
 from indexes import Trie # importa a implementação da Trie
+from indexes import IndiceInvertidoBST
 
 def importar_tudo():
     # Pastas e Caminhos
@@ -20,6 +21,8 @@ def importar_tudo():
     index_cidade = Trie("data/bin/index_cidade.idx")
     #Index Secundário (Trie) para ocorrencia_categoria_tipo
     index_categoria = Trie("data/bin/index_categoria.idx")
+    # Inicializa BST para índice invertido para UF
+    index_uf = IndiceInvertidoBST("data/bin/index_uf.dat", key_size=2)
 
     # Abre todos em modo w+b (limpa e abre binario)
     arq_oc = open(f_oc, "w+b")
@@ -58,6 +61,8 @@ def importar_tudo():
                     index_tree.insert(cod, offset) # <--- INSERIR NA ÁRVORE
                     # Inserir na Trie de cidades (Índice Secundário)
                     index_cidade.insert(cidade, cod)
+                    # Inserir na BST de UF (Índice Invertido)
+                    index_uf.adicionar(row['ocorrencia_uf'], cod)
                     
                 except ValueError: continue
     except FileNotFoundError: print("Arquivo ocorrencia.csv não encontrado.")
@@ -185,9 +190,10 @@ def importar_tudo():
     
     # Salvar a Trie no final
     index_modelo_trie.save()
-
     index_cidade.save() # <--- SALVAR TRIE DE CIDADES
     index_categoria.save() # <--- SALVAR TRIE DE CATEGORIA
+    
+    index_uf.save()  # Salvar BST de UF
 
     # Fechar tudo
     arq_oc.close()

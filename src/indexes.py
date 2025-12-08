@@ -218,3 +218,162 @@ class Trie:
                 trie.root = offset_to_node[root_offset]
                 
             return trie
+
+
+class No:
+    """
+    Nó genérico da Árvore Binária de Busca (BST).
+    """
+    def __init__(self, key):
+        self.key = key          # Chave de busca (ex: "SP", "ACIDENTE")
+        self.ids = []           # Lista de IDs (Inteiros)
+        self.left = None        # Filho à esquerda
+        self.right = None       # Filho à direita
+
+class IndiceInvertidoBST:
+    def __init__(self, filename, key_size=30):
+        """
+        :param filename: Caminho do arquivo para salvar/carregar.
+        :param key_size: Tamanho fixo da chave em bytes para persistência. 
+                         Defina conforme o campo (ex: UF=2, Status=20).
+        """
+        self.root = None
+        self.filename = filename
+        self.key_size = key_size 
+
+    # --- Lógica em Memória (BST) ---
+
+    def adicionar(self, chave_raw, _id):
+        """
+        Insere ou atualiza um nó na BST.
+        Normaliza a chave (upper, strip) e trunca pelo key_size.
+        """
+        if not chave_raw: return
+        
+        # Normalização genérica: Maiúsculas, remove espaços e corta no tamanho máximo
+        key = str(chave_raw).strip().upper()[:self.key_size]
+        
+        if self.root is None:
+            self.root = No(key)
+            self.root.ids.append(_id)
+        else:
+            self._inserir_recursivo(self.root, key, _id)
+
+    def _inserir_recursivo(self, node, key, _id):
+        if key == node.key:
+            # Encontrou: adiciona ID à lista existente (se não duplicado)
+            if _id not in node.ids:
+                node.ids.append(_id)
+        elif key < node.key:
+            if node.left is None:
+                node.left = No(key)
+                node.left.ids.append(_id)
+            else:
+                self._inserir_recursivo(node.left, key, _id)
+        else: # key > node.key
+            if node.right is None:
+                node.right = No(key)
+                node.right.ids.append(_id)
+            else:
+                self._inserir_recursivo(node.right, key, _id)
+
+    def buscar(self, termo):
+        """Busca na BST em memória."""
+        if not termo: return []
+        key = str(termo).strip().upper()[:self.key_size]
+        return self._buscar_recursivo(self.root, key)
+
+    def _buscar_recursivo(self, node, key):
+        if node is None:
+            return []
+        if key == node.key:
+            return node.ids
+        elif key < node.key:
+            return self._buscar_recursivo(node.left, key)
+        else:
+            return self._buscar_recursivo(node.right, key)
+
+    # --- Persistência (Arquivo Invertido Genérico) ---
+
+    def save(self):
+        os.makedirs(os.path.dirname(self.filename), exist_ok=True)
+        
+        nos_ordenados = []
+        self._in_order(self.root, nos_ordenados)
+        qtd_termos = len(nos_ordenados)
+        
+        with open(self.filename, 'wb') as f:
+            # HEADER: Use '<' para garantir tamanho padrão (8 bytes)
+            f.write(struct.pack('<i i', qtd_termos, self.key_size))
+            
+            # Formatação COM '<' para evitar padding
+            # Ex para UF: '<2s i i' (Total exato de 10 bytes)
+            fmt = f'<{self.key_size}s i i'
+            entry_size = struct.calcsize(fmt) # Calcula tamanho exato da struct
+            
+            offset_atual = 8 + (qtd_termos * entry_size)
+            
+            # ESCREVER DIRETÓRIO
+            for node in nos_ordenados:
+                qtd_ids = len(node.ids)
+                b_key = node.key.encode('latin-1', errors='replace')[:self.key_size]
+                b_key = b_key.ljust(self.key_size, b'\0')
+                
+                # Note o '<' no início do formato
+                f.write(struct.pack(fmt, b_key, offset_atual, qtd_ids))
+                
+                offset_atual += (qtd_ids * 4) 
+            
+            # ESCREVER LISTAS DE POSTAGEM
+            for node in nos_ordenados:
+                for _id in node.ids:
+                    f.write(struct.pack('<i', int(_id)))
+                    
+        print(f"Índice salvo em {self.filename} (Termos={qtd_termos})")
+
+    def _in_order(self, node, lista):
+        if node:
+            self._in_order(node.left, lista)
+            lista.append(node)
+            self._in_order(node.right, lista)
+
+    @staticmethod
+    def load(filename):
+        instance = IndiceInvertidoBST(filename)
+        if not os.path.exists(filename):
+            print(f"Índice {filename} não encontrado. Criando novo.")
+            return instance
+
+        with open(filename, 'rb') as f:
+            data = f.read(8)
+            if not data: return instance
+            qtd_termos, loaded_key_size = struct.unpack('<i i', data)
+            
+            instance.key_size = loaded_key_size
+            
+            # Formatação COM '<'
+            fmt = f'<{instance.key_size}s i i'
+            entry_size = struct.calcsize(fmt) # Garante que leremos o tamanho correto
+            
+            dir_bytes = f.read(qtd_termos * entry_size)
+            
+            diretorio = []
+            for i in range(qtd_termos):
+                inicio = i * entry_size
+                chunk = dir_bytes[inicio : inicio + entry_size]
+                
+                # Agora o chunk terá o tamanho exato que o unpack espera
+                b_key, offset, qtd = struct.unpack(fmt, chunk)
+                
+                key_str = b_key.decode('latin-1').strip('\x00')
+                diretorio.append((key_str, offset, qtd))
+            
+            for key, offset, qtd in diretorio:
+                f.seek(offset)
+                raw_ids = f.read(qtd * 4)
+                if len(raw_ids) < qtd * 4: continue
+                lista_ids = struct.unpack(f'<{qtd}i', raw_ids)
+                for _id in lista_ids:
+                    instance.adicionar(key, _id)
+                    
+        return instance

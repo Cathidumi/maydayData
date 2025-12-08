@@ -83,3 +83,22 @@ def busca_trie_categoria(categoria_parcial="ACIDENTE"):
             print(f"Nenhuma ocorrência encontrada para categoria começando com '{categoria_parcial}'.")
     except Exception as e:
         print(f"Erro ao buscar por categoria na Trie: {e}")
+
+def busca_bst_uf(uf="SP"):
+    try:
+        db = Database(
+            path_oc="data/bin/ocorrencias.dat",
+            path_ae="data/bin/aeronaves.dat",
+            path_tipo="data/bin/tipos.dat",
+            path_rec="data/bin/recomendacoes.dat"
+        )
+
+        ocorrencias = db.buscar_por_uf(uf)
+        if ocorrencias:
+            print(f"Ocorrências encontradas para UF '{uf}':")
+            for oc in ocorrencias:
+                print(f"  Código: {oc.codigo}, Local: {oc.cidade.strip()}/{oc.uf}, Classificação: {oc.classificacao.strip()}")
+        else:
+            print(f"Nenhuma ocorrência encontrada para UF '{uf}'.")
+    except Exception as e:
+        print(f"Erro ao buscar por UF na BST: {e}")

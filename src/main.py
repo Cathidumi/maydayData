@@ -6,7 +6,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from importer import importar_tudo
 
 from teste_leitura import testar_simples
-from buscas import busca_na_arvore, busca_na_trie_modelo, busca_trie_cidade, busca_trie_categoria
+from buscas import busca_na_arvore, busca_na_trie_modelo, busca_trie_cidade, busca_trie_categoria, busca_bst_uf
 
 def main():
     try:
@@ -38,6 +38,7 @@ def app():
         print('2. Busca por modelo de Aeronave')
         print('3. Busca por cidade')
         print('4. Busca por categoria de Ocorrência')
+        print('5. Busca por UF')
         print('sair. Sair do programa')
         escolha = input('Escolha uma opção: ')
         if escolha == '1':
@@ -60,10 +61,16 @@ def app():
                 print(f"Erro ao buscar por cidade na Trie: {e}")
         elif escolha == '4':
             try:
-                categoria = input('Digite a categoria/tipo da ocorrência: ')
+                categoria = input('Digite a categoria da ocorrência: ')
                 busca_trie_categoria(categoria)
             except Exception as e:
                 print(f"Erro ao buscar por categoria/tipo na Trie: {e}")
+        elif escolha == '5':
+            try:
+                uf = input('Digite a UF da ocorrência (ex: SP): ')
+                busca_bst_uf(uf)
+            except Exception as e:
+                print(f"Erro ao buscar por UF na BST: {e}")
         elif escolha.lower() == 'sair':
             print('Saindo do programa.')
             break
