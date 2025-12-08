@@ -12,7 +12,7 @@ class TrieNode:
         self._temp_children_offsets = {} # char -> offset
 
 class Trie:
-    def __init__(self, filename="data/bin/index_modelo.idx"):
+    def __init__(self, filename="data/bin/index_modelo.dat"):
         self.root = TrieNode()
         self.filename = filename
 
@@ -152,7 +152,7 @@ class Trie:
         print(f"Índice Secundário (Trie) salvo em {self.filename} ({len(all_nodes)} nós).")
 
     @staticmethod
-    def load(filename="data/bin/index_modelo.idx"):
+    def load(filename="data/bin/index_modelo.dat"):
         """Carrega a Trie do disco."""
         if not os.path.exists(filename):
             print("Índice secundário não encontrado. Criando nova Trie.")

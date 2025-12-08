@@ -15,7 +15,7 @@ class Node:
         self._my_file_offset = -1
 
 class BPlusTree:
-    def __init__(self, order=5, filename="data/bin/index_primary.idx"):
+    def __init__(self, order=5, filename="data/bin/index_primary.dat"):
         self.root = Node(is_leaf=True)
         self.order = order
         self.filename = filename
@@ -168,7 +168,7 @@ class BPlusTree:
         print(f"Índice B+ salvo com STRUCT em {self.filename} ({len(all_nodes)} nós).")
 
     @staticmethod
-    def load(filename="data/bin/index_primary.idx"):
+    def load(filename="data/bin/index_primary.dat"):
         """Carrega a árvore reconstruindo os ponteiros a partir dos offsets."""
         if not os.path.exists(filename):
             print("Arquivo de índice não encontrado. Criando nova árvore.")

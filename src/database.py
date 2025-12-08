@@ -13,11 +13,11 @@ class Database:
         
         # Carrega o índice B+ ao iniciar
         # Conforme a spec: árvores podem ser carregadas integralmente em memória 
-        self.index = BPlusTree.load("data/bin/index_primary.idx")
+        self.index = BPlusTree.load("data/bin/index_primary.dat")
         # Tries
-        self.index_modelo = Trie.load("data/bin/index_modelo.idx") # Carrega a Trie para índice secundário de modelo
-        self.index_cidade = Trie.load("data/bin/index_cidade.idx") # Carrega Trie de cidades
-        self.index_categoria = Trie.load("data/bin/index_categoria.idx") # Carrega Trie de categoria
+        self.index_modelo = Trie.load("data/bin/index_modelo.dat") # Carrega a Trie para índice secundário de modelo
+        self.index_cidade = Trie.load("data/bin/index_cidade.dat") # Carrega Trie de cidades
+        self.index_categoria = Trie.load("data/bin/index_categoria.dat") # Carrega Trie de categoria
         # BST de índice invertido
         self.index_uf = IndiceInvertidoBST.load("data/bin/index_uf.dat")
 

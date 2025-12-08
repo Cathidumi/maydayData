@@ -16,11 +16,11 @@ def importar_tudo():
     # Inicializa a Árvore B+
     index_tree = BPlusTree(order=5)
     # Inicializa a Trie para busca por modelo (Índice Secundário)
-    index_modelo_trie = Trie("data/bin/index_modelo.idx")
+    index_modelo_trie = Trie("data/bin/index_modelo.dat")
     #Index Secundário (Trie) para cidades
-    index_cidade = Trie("data/bin/index_cidade.idx")
+    index_cidade = Trie("data/bin/index_cidade.dat")
     #Index Secundário (Trie) para ocorrencia_categoria_tipo
-    index_categoria = Trie("data/bin/index_categoria.idx")
+    index_categoria = Trie("data/bin/index_categoria.dat")
     # Inicializa BST para índice invertido para UF
     index_uf = IndiceInvertidoBST("data/bin/index_uf.dat", key_size=2)
 
