@@ -15,14 +15,18 @@ def importar_tudo():
     
     # Inicializa a Árvore B+
     index_tree = BPlusTree(order=5)
+
     # Inicializa a Trie para busca por modelo (Índice Secundário)
     index_modelo_trie = Trie("data/bin/index_modelo.dat")
     #Index Secundário (Trie) para cidades
     index_cidade = Trie("data/bin/index_cidade.dat")
     #Index Secundário (Trie) para ocorrencia_categoria_tipo
     index_categoria = Trie("data/bin/index_categoria.dat")
+
     # Inicializa BST para índice invertido para UF
     index_uf = IndiceInvertidoBST("data/bin/index_uf.dat", key_size=2)
+    # Inicializa BST para índice invertido para Fatalidades
+    index_investigacao = IndiceInvertidoBST("data/bin/index_investigacao.dat", key_size=10)
 
     # Abre todos em modo w+b (limpa e abre binario)
     arq_oc = open(f_oc, "w+b")
@@ -63,6 +67,8 @@ def importar_tudo():
                     index_cidade.insert(cidade, cod)
                     # Inserir na BST de UF (Índice Invertido)
                     index_uf.adicionar(row['ocorrencia_uf'], cod)
+                    # Inserir na BST de Status da Investigação (Índice Invertido)
+                    index_investigacao.adicionar(row['investigacao_status'], cod)
                     
                 except ValueError: continue
     except FileNotFoundError: print("Arquivo ocorrencia.csv não encontrado.")
@@ -188,12 +194,14 @@ def importar_tudo():
     # Salvar a Árvore B+ no final
     index_tree.save() # <--- SALVAR NO DISCO
     
-    # Salvar a Trie no final
+    # Salvar as Tries no final
     index_modelo_trie.save()
     index_cidade.save() # <--- SALVAR TRIE DE CIDADES
     index_categoria.save() # <--- SALVAR TRIE DE CATEGORIA
     
+    # Salvar as BSTs no final
     index_uf.save()  # Salvar BST de UF
+    index_investigacao.save()  # Salvar BST de Status da Investigação
 
     # Fechar tudo
     arq_oc.close()

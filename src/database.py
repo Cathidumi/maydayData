@@ -14,12 +14,15 @@ class Database:
         # Carrega o índice B+ ao iniciar
         # Conforme a spec: árvores podem ser carregadas integralmente em memória 
         self.index = BPlusTree.load("data/bin/index_primary.dat")
+
         # Tries
         self.index_modelo = Trie.load("data/bin/index_modelo.dat") # Carrega a Trie para índice secundário de modelo
         self.index_cidade = Trie.load("data/bin/index_cidade.dat") # Carrega Trie de cidades
         self.index_categoria = Trie.load("data/bin/index_categoria.dat") # Carrega Trie de categoria
+
         # BST de índice invertido
         self.index_uf = IndiceInvertidoBST.load("data/bin/index_uf.dat")
+        self.index_investigacao = IndiceInvertidoBST.load("data/bin/index_investigacao.dat")
 
 
     def buscar_ocorrencia_por_id(self, codigo_id):
@@ -48,6 +51,12 @@ class Database:
         # Ex: uf = 'SP'
         """Busca Ocorrências por UF usando o índice invertido (BST)"""
         ids = self.index_uf.buscar(uf) 
+        return self._recuperar_ocorrencias_por_ids(ids)
+    
+    def buscar_por_status_investigacao(self, status):
+        # Ex: status = 'FINALIZADA' ou 'ATIVA'
+        """Busca Ocorrências por Status da Investigação usando o índice invertido (BST)"""
+        ids = self.index_investigacao.buscar(status) 
         return self._recuperar_ocorrencias_por_ids(ids)
 
     def _recuperar_ocorrencias_por_ids(self, lista_ids):

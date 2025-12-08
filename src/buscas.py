@@ -102,3 +102,22 @@ def busca_bst_uf(uf="SP"):
             print(f"Nenhuma ocorrência encontrada para UF '{uf}'.")
     except Exception as e:
         print(f"Erro ao buscar por UF na BST: {e}")
+
+def busca_bst_status_investigacao(status="FINALIZADA"):
+    try:
+        db = Database(
+            path_oc="data/bin/ocorrencias.dat",
+            path_ae="data/bin/aeronaves.dat",
+            path_tipo="data/bin/tipos.dat",
+            path_rec="data/bin/recomendacoes.dat"
+        )
+
+        ocorrencias = db.buscar_por_status_investigacao(status)
+        if ocorrencias:
+            print(f"Ocorrências encontradas para status de investigação '{status}':")
+            for oc in ocorrencias:
+                print(f"  Código: {oc.codigo}, Local: {oc.cidade.strip()}/{oc.uf}, Classificação: {oc.classificacao.strip()}")
+        else:
+            print(f"Nenhuma ocorrência encontrada para status de investigação '{status}'.")
+    except Exception as e:
+        print(f"Erro ao buscar por status de investigação na BST: {e}")
