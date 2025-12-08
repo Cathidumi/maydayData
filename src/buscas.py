@@ -8,11 +8,17 @@ def busca_na_arvore(db, codigo_teste=87125):
     try:
         ocorrencia = db.buscar_ocorrencia_por_id(codigo_teste)
         if ocorrencia:
-            print(f"Ocorrência encontrada: {ocorrencia}")
-            print(f"  Local: {ocorrencia.cidade.strip()}/{ocorrencia.uf}")
-            print(f"  Classificação: {ocorrencia.classificacao.strip()}")
-            print(f"  Total Aeronaves Envolvidas: {ocorrencia.total_aeros}")
-            print(f"  Status da Investigação: {ocorrencia.status.strip()}")
+            aeronave = db.ler_aeronaves(ocorrencia)
+            tipos = db.ler_tipos(ocorrencia)
+            recomendacoes = db.ler_recomendacoes(ocorrencia)
+            #print(f"Ocorrência encontrada: {ocorrencia}")
+            print(f'|{'Ocorrência':^34}|{'Aeronaves':^34}|{ 'Tipos':^34}|{ 'Recomendações':^34}|')
+            print(f"| Código: {ocorrencia.codigo:<24} |")
+            print(f"| Local: {ocorrencia.cidade.strip()}/{ocorrencia.uf} |")
+            print(f"| Classificação: {ocorrencia.classificacao.strip():<17} |")
+            print(f"| Aeronaves Envolvidas: {ocorrencia.total_aeros:<10} |")
+            print(f"| Investigação: {ocorrencia.status.strip():<18} |")
+
         else:
             print(f"Ocorrência com código {codigo_teste} não encontrada.")
     except Exception as e:

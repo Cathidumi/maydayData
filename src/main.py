@@ -24,14 +24,6 @@ def main():
         print(f"Erro ao ler os dados: {e}")
         return
     
-    """  # BUSCA NA ÁRVORE B+
-    print('\n--- Teste de Busca na Árvore B+ ---\n')
-    try:
-        busca_na_arvore(87124)
-    except Exception as e:
-        print(f"Erro ao buscar na árvore B+: {e}")
-        return """
-    
 def app():
     try:
         db = Database(
@@ -104,6 +96,59 @@ def app():
         else:
             print('Opção inválida. Tente novamente.')
 
+def app_main():
+    clear_terminal()
+    print("Carregando banco de dados e índices, por favor aguarde...")
+
+    try:
+        db = Database(
+            path_oc="data/bin/ocorrencias.dat",
+            path_ae="data/bin/aeronaves.dat",
+            path_tipo="data/bin/tipos.dat",
+            path_rec="data/bin/recomendacoes.dat"
+        )
+        #print("Índices carregados com sucesso!")
+    except Exception as e:
+        print(f"Erro fatal ao carregar banco de dados: {e}")
+        return
+    
+    clear_terminal()
+    texto_inicial = 'MaydaData - Sistema de Pesquisa de Ocorrências Aéreas na Aviação Civil Brasileira'
+    largura_console = os.get_terminal_size().columns
+    print(f'\n{'-'*largura_console}\n{texto_inicial.center(largura_console)}\n{"-"*largura_console}\n')
+    print(largura_console)
+    print(f'Menu principal')
+    print(f'1. Busca por Código de Ocorrência')
+    print(f'2. Busca por modelo de Aeronave')
+    print(f'3. Busca por cidade')
+
+    input_opcao = input('\nEscolha uma opção: ')
+    if input_opcao == '1':
+        app_busca_por_codigo(db)
+    elif input_opcao == 'sair':
+        print('Saindo do programa.')
+        return
+    
+def clear_terminal():
+    # Check the operating system name
+    if os.name == 'nt':
+        # Command for Windows
+        _ = os.system('cls')
+    else:
+        # Command for Linux and macOS (posix is the name for non-Windows)
+        _ = os.system('clear')
+
+def app_busca_por_codigo(db):
+    clear_terminal()
+    try:
+        codigo = int(input('Digite o código da ocorrência: '))
+        print()
+        busca_na_arvore(db, codigo)
+    except Exception as e:
+        print(f"Erro ao buscar na árvore B+: {e}")
+
+
 if __name__ == "__main__":
-    main()
-    app()
+    #main()
+    #app()
+    app_main()
