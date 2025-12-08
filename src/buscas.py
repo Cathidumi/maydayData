@@ -3,9 +3,6 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-def clear_terminal():
-    os.system('cls' if os.name == 'nt' else 'clear')
-
 # BUSCA NA ÁRVORE B+
 def busca_na_arvore(db, codigo_teste=87125):
     try:
@@ -204,3 +201,6 @@ def busca_bst_fatalidades(db, qtd):
             print(f"Nenhuma ocorrência encontrada com exatos {qtd} fatalidades.")
     except Exception as e:
         print(f"Erro na busca por fatalidades: {e}")
+
+def clear_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
