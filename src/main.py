@@ -6,7 +6,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from importer import importar_tudo
 
 from buscas import busca_na_arvore, busca_na_trie_modelo, busca_trie_cidade, busca_trie_categoria, busca_bst_uf, busca_bst_status_investigacao, busca_bst_fatalidades
-from buscas import busca_na_arvore, busca_na_trie_modelo_paginada, busca_trie_cidade_paginada, busca_trie_categoria_paginada, busca_bst_uf_paginada, busca_bst_status_paginada, busca_bst_fatalidades_paginada
 from database import Database
 
 def main():
@@ -15,78 +14,6 @@ def main():
     except Exception as e:
         print(f"Erro crítico na importação: {e}")
         return
-    
-'''def app():
-    try:
-        db = Database(
-            path_oc="data/bin/ocorrencias.dat",
-            path_ae="data/bin/aeronaves.dat",
-            path_tipo="data/bin/tipos.dat",
-            path_rec="data/bin/recomendacoes.dat"
-        )
-        print("Índices carregados com sucesso!")
-    except Exception as e:
-        print(f"Erro fatal ao carregar banco de dados: {e}")
-        return
-
-    while True:
-        print('\n--- Menu Principal ---')
-        print('1. Busca por Código de Ocorrência')
-        print('2. Busca por modelo de Aeronave')
-        print('3. Busca por cidade')
-        print('4. Busca por categoria de Ocorrência')
-        print('5. Busca por UF')
-        print('6. Busca por Status da Investigação')
-        print('7. Busca por Fatalidades')
-        print('sair. Sair do programa')
-        escolha = input('Escolha uma opção: ')
-        if escolha == '1':
-            try:
-                codigo = int(input('Digite o código da ocorrência: '))
-                busca_na_arvore(db, codigo)
-            except Exception as e:
-                print(f"Erro ao buscar na árvore B+: {e}")
-        elif escolha == '2':
-            try:
-                modelo = input('Digite o modelo da aeronave: ')
-                busca_na_trie_modelo(db, modelo)
-            except Exception as e:
-                print(f"Erro ao buscar por modelo na Trie: {e}")
-        elif escolha == '3':
-            try:
-                cidade = input('Digite a cidade da ocorrência: ')
-                busca_trie_cidade(db, cidade)
-            except Exception as e:
-                print(f"Erro ao buscar por cidade na Trie: {e}")
-        elif escolha == '4':
-            try:
-                categoria = input('Digite a categoria da ocorrência: ')
-                busca_trie_categoria(db, categoria)
-            except Exception as e:
-                print(f"Erro ao buscar por categoria/tipo na Trie: {e}")
-        elif escolha == '5':
-            try:
-                uf = input('Digite a UF da ocorrência (ex: SP): ')
-                busca_bst_uf(db, uf)
-            except Exception as e:
-                print(f"Erro ao buscar por UF na BST: {e}")
-        elif escolha == '6':
-            try:
-                status = input('Digite o Status da Investigação (ex: FINALIZADA, ATIVA): ')
-                busca_bst_status_investigacao(db, status)
-            except Exception as e:
-                print(f"Erro ao buscar por Status da Investigação na BST: {e}")
-        elif escolha == '7':
-            try:
-                qtd = int(input('Digite a quantidade de fatalidades: '))
-                busca_bst_fatalidades(db, qtd)
-            except Exception as e:
-                print(f"Erro ao buscar por Fatalidades: {e}")
-        elif escolha.lower() == 'sair':
-            print('Saindo do programa.')
-            break
-        else:
-            print('Opção inválida. Tente novamente.')'''
 
 def app_main():
     clear_terminal()
@@ -99,7 +26,6 @@ def app_main():
             path_tipo="data/bin/tipos.dat",
             path_rec="data/bin/recomendacoes.dat"
         )
-        #print("Índices carregados com sucesso!")
     except Exception as e:
         print(f"Erro fatal ao carregar banco de dados: {e}")
         return
@@ -113,17 +39,17 @@ def app_main():
             app_busca_por_codigo(db)
             voltar_ao_menu()
         elif input_opcao == '2':
-            busca_na_trie_modelo_paginada(db)
+            busca_na_trie_modelo(db)
         elif input_opcao == '3':
-            busca_trie_cidade_paginada(db)
+            busca_trie_cidade(db)
         elif input_opcao == '4':
-            busca_trie_categoria_paginada(db)
+            busca_trie_categoria(db)
         elif input_opcao == '5':
-            busca_bst_uf_paginada(db)
+            busca_bst_uf(db)
         elif input_opcao == '6':
-            busca_bst_status_paginada(db)
+            busca_bst_status_investigacao(db)
         elif input_opcao == '7':
-            busca_bst_fatalidades_paginada(db)
+            busca_bst_fatalidades(db)
 
         elif input_opcao == 'sair':
             print('Saindo do programa.')
