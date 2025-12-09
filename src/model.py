@@ -9,8 +9,8 @@ class Ocorrencia:
     # 20s = status investigacao (20 bytes)
     # i   = total aeronaves (4 bytes)
     # i   = pont_aeronave (4 bytes)
-    # i   = pont_tipo (4 bytes) - NOVO
-    # i   = pont_recomendacao (4 bytes) - NOVO
+    # i   = pont_tipo (4 bytes)
+    # i   = pont_recomendacao (4 bytes)
     FORMATO = 'i 2s 50s 30s 20s i i i i'
     TAMANHO = struct.calcsize(FORMATO)
 
@@ -56,8 +56,7 @@ class Ocorrencia:
 
 class Aeronave:
     # Campos: modelo, origem, destino, fatalidades + ponteiro prox
-    # 4s para ICAO
-    FORMATO = '30s 4s 4s i i' 
+    FORMATO = '30s 100s 100s i i' 
     TAMANHO = struct.calcsize(FORMATO)
 
     def __init__(self, modelo, origem, destino, fatalidades, prox_aeronave=-1):
@@ -70,8 +69,8 @@ class Aeronave:
     def to_bytes(self):
         return struct.pack(self.FORMATO,
             self.modelo.encode('latin-1')[:30].ljust(30, b'\0'),
-            self.origem.encode('latin-1')[:4].ljust(4, b'\0'),
-            self.destino.encode('latin-1')[:4].ljust(4, b'\0'),
+            self.origem.encode('latin-1')[:100].ljust(100, b'\0'),
+            self.destino.encode('latin-1')[:100].ljust(100, b'\0'),
             self.fatalidades,
             self.prox_aeronave
         )
