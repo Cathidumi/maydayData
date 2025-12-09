@@ -167,6 +167,6 @@ def voltar_ao_menu():
     menu_principal()
 
 if __name__ == "__main__":
-    #main()
+    main()
     #app()
     app_main()

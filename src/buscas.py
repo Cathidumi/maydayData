@@ -105,16 +105,22 @@ def busca_na_arvore(db, codigo=87125):
                 rec_numero = "Não há recomendações"
                 rec_status = "Não há recomendações"
                 rec_conteudo = "Não há recomendações"
+                rec_conteudo2 = ""
+                rec_conteudo3 = ""
 
             local = f"{ocorrencia.cidade.strip()}/{ocorrencia.uf}"
+            aeronave_destino = aeronaves[0].destino
+            aeronave_destino = aeronave_destino[:23]
+            aeronave_origem = aeronaves[0].origem
+            aeronave_origem = aeronave_origem[:24]
 
             #print(f"Ocorrência encontrada: {ocorrencia}")
             print('-' * 141)
             print(f'|{'Ocorrência':^34}|{'Aeronave':^34}|{ 'Recomendações':^69}|')
             print('-' * 141)
             print(f"| Código: {ocorrencia.codigo:<24} | Modelo: {aeronaves[0].modelo:<24} | Número: {rec_numero:<60}|")
-            print(f"| Local: {local:<25} | Origem: {aeronaves[0].origem:<24} | Status: {rec_status:<60}|")
-            print(f"| Classificação: {ocorrencia.classificacao.strip():<17} | Destino: {aeronaves[0].destino:<23} | Conteúdo: {rec_conteudo:<58}|")
+            print(f"| Local: {local:<25} | Origem: {aeronave_origem:<24} | Status: {rec_status:<60}|")
+            print(f"| Classificação: {ocorrencia.classificacao.strip():<17} | Destino: {aeronave_destino:<23} | Conteúdo: {rec_conteudo:<58}|")
             print(f"| Aeronaves Envolvidas: {ocorrencia.total_aeros:<10} | Fatalidades: {aeronaves[0].fatalidades:<19} | {rec_conteudo2:<67} |") 
             print(f"| Investigação: {ocorrencia.status.strip():<18} | {'|':>34} {rec_conteudo3:<67} |")
             print('-' * 141)
