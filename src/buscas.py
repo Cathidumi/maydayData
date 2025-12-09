@@ -7,26 +7,52 @@ def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 # BUSCA NA ÁRVORE B+
-def busca_na_arvore(db, codigo_teste=87125):
+def busca_na_arvore(db, codigo=87125):
     try:
-        ocorrencia = db.buscar_ocorrencia_por_id(codigo_teste)
+        ocorrencia = db.buscar_ocorrencia_por_id(codigo)
         if ocorrencia:
-            aeronave = db.ler_aeronaves(ocorrencia)
+            aeronaves = db.ler_aeronaves(ocorrencia)
             tipos = db.ler_tipos(ocorrencia)
             recomendacoes = db.ler_recomendacoes(ocorrencia)
+
+            if len(recomendacoes) > 0:
+                rec_numero = recomendacoes[0].numero.strip()
+                rec_status = recomendacoes[0].status.strip()
+                rec_conteudo = recomendacoes[0].conteudo.strip()
+                if len(rec_conteudo) > 57:
+                    rec_conteudo3 = rec_conteudo[124:190]
+                    rec_conteudo2 = rec_conteudo[57:124]
+                    rec_conteudo = rec_conteudo[:57]
+                else:
+                    rec_conteudo2 = ""
+                    rec_conteudo3 = ""
+
+            else:
+                rec_numero = "Não há recomendações"
+                rec_status = "Não há recomendações"
+                rec_conteudo = "Não há recomendações"
+
+            local = f"{ocorrencia.cidade.strip()}/{ocorrencia.uf}"
+
             #print(f"Ocorrência encontrada: {ocorrencia}")
             print('-' * 141)
-            print(f'|{'Ocorrência':^34}|{'Aeronaves':^34}|{ 'Tipos':^34}|{ 'Recomendações':^34}|')
+            print(f'|{'Ocorrência':^34}|{'Aeronave':^34}|{ 'Recomendações':^69}|')
             print('-' * 141)
-            print(f"| Código: {ocorrencia.codigo:<24} |")
-            print(f"| Local: {ocorrencia.cidade.strip()}/{ocorrencia.uf} |")
-            print(f"| Classificação: {ocorrencia.classificacao.strip():<17} |")
-            print(f"| Aeronaves Envolvidas: {ocorrencia.total_aeros:<10} |")
-            print(f"| Investigação: {ocorrencia.status.strip():<18} |")
+            print(f"| Código: {ocorrencia.codigo:<24} | Modelo: {aeronaves[0].modelo:<24} | Número: {rec_numero:<60}|")
+            print(f"| Local: {local:<25} | Origem: {aeronaves[0].origem:<24} | Status: {rec_status:<60}|")
+            print(f"| Classificação: {ocorrencia.classificacao.strip():<17} | Destino: {aeronaves[0].destino:<23} | Conteúdo: {rec_conteudo:<58}|")
+            print(f"| Aeronaves Envolvidas: {ocorrencia.total_aeros:<10} | Fatalidades: {aeronaves[0].fatalidades:<19} | {rec_conteudo2:<67} |") 
+            print(f"| Investigação: {ocorrencia.status.strip():<18} | {'|':>34} {rec_conteudo3:<67} |")
             print('-' * 141)
+            print(f'|{'Tipo':^69}|')
+            print('-' * 71)
+            print(f'| Tipo: {tipos[0].tipo:<61} |') # | Número: {recomendacoes[0].numero:<53}|')
+            print(f'| Categoria: {tipos[0].categoria:<56} |') #| Status: {recomendacoes[0].status:<50}|')
+            print(f'| Taxonomia: {tipos[0].taxonomia:<56} |') #| Conteúdo: {recomendacoes[0].conteudo:<50}|')
+            print('-' * 71)
 
         else:
-            print(f"Ocorrência com código {codigo_teste} não encontrada.")
+            print(f"Ocorrência com código {codigo} não encontrada.")
     except Exception as e:
         print(f"Erro ao buscar ocorrência: {e}")
 

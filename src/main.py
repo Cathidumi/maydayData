@@ -129,6 +129,8 @@ def app_main():
         else:
             print('Opção inválida. Tente novamente.')
     
+
+    
 def clear_terminal():
     # Check the operating system name
     if os.name == 'nt':
@@ -156,15 +158,13 @@ def menu_principal():
     print(f'1. Busca por Código de Ocorrência')
     print(f'2. Busca por modelo de Aeronave')
     print(f'3. Busca por cidade')
+    print(f'sair. Sair do programa')
 
 def voltar_ao_menu():
     input('\nPressione Enter para voltar ao menu principal...')
     menu_principal()
 
 if __name__ == "__main__":
-    #main()
-    #app()
-    app_main()
     #main()
     #app()
     app_main()

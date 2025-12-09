@@ -29,16 +29,19 @@ def testar_simples():
     print(f"Aeronaves ({len(aeronaves)}):")
     for a in aeronaves:
         print(f" - {a.modelo.strip()} (Fatais: {a.fatalidades})")
+        print(f"   Origem: {a.origem.strip()} | Destino: {a.destino.strip()}")
 
     tipos = db.ler_tipos(oc)
     print(f"Tipos ({len(tipos)}):")
     for t in tipos:
         print(f" - {t.tipo.strip()} ({t.taxonomia.strip()})")
+        print(f"   Categoria: {t.categoria.strip()}")
 
     recs = db.ler_recomendacoes(oc)
     print(f"Recomendações ({len(recs)}):")
     for r in recs:
         print(f" - {r.numero.strip()}: {r.status.strip()}")
+        print(f"   Conteúdo: {r.conteudo.strip()}")
 
 if __name__ == "__main__":
     testar_simples()
